@@ -1,4 +1,4 @@
-# MachineLearningSolarSpotter
+# Machine Learning Solar Spotter
 Machine learning model to spot rooftop solar in aerial imagery 
 
 
