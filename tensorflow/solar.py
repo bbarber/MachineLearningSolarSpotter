@@ -1,3 +1,4 @@
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
@@ -7,6 +8,10 @@ import pathlib
 import matplotlib.pyplot as plt
 import os
 import tensorboard
+from datetime import datetime
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
 
 # classifications notsolar = 0, solar = 1
 CLASS_NAMES = ["notsolar", "solar"]
@@ -16,6 +21,9 @@ IMG_HEIGHT = 256
 
 train_data_dir = 'I:\\SolarMachineLearning\\training_images\\*\\*.jpg'
 test_data_dir = 'I:\\SolarMachineLearning\\test_images\\*\\*.jpg'
+logdir = 'I:\\SolarMachineLearning\\tensorflow\\logs\\scalars\\' + datetime.now().strftime("%Y%m%d-%H%M%S")
+
+tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
 train_ds = tf.data.Dataset.list_files(train_data_dir)
 test_ds = tf.data.Dataset.list_files(test_data_dir)
@@ -45,10 +53,23 @@ train_images = train_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 test_images = test_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 
 
-model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
-    keras.layers.Dense(32, activation='relu'),
-    keras.layers.Dense(2, activation='softmax')
+# model = keras.Sequential([
+#     keras.layers.Flatten(input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+#     keras.layers.Dense(64, activation='relu'),
+#     keras.layers.Dense(2, activation='softmax')
+# ])
+
+
+model = Sequential([
+    Conv2D(16, 3, padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH ,3)),
+    MaxPooling2D(),
+    Conv2D(32, 3, padding='same', activation='relu'),
+    MaxPooling2D(),
+    Conv2D(64, 3, padding='same', activation='relu'),
+    MaxPooling2D(),
+    Flatten(),
+    Dense(32, activation='relu'),
+    Dense(2, activation='softmax')
 ])
 
 
@@ -76,13 +97,17 @@ train_labels_array = np.array(train_labels_array)
 test_images_array = np.array(test_images_array)
 test_labels_array = np.array(test_labels_array)
 
-print("train: ")
-print(list(train_labels_array))
-print("test: ")
-print(list(test_labels_array))
+# print("train: ")
+# print(list(train_labels_array))
+# print("test: ")
+# print(list(test_labels_array))
 
-# 150 test images, 50 epochs, 0.9967 accuracy
-model.fit(train_images_array, train_labels_array, epochs=50)
+model.fit(
+  train_images_array, 
+  train_labels_array, 
+  epochs=20,
+  callbacks=[tensorboard_callback],
+)
 
 test_loss, test_acc = model.evaluate(test_images_array,  test_labels_array, verbose=2)
 
@@ -119,4 +144,4 @@ def display_predictions():
   plt.tight_layout()
   plt.show()
 
-#display_predictions()
+display_predictions()
