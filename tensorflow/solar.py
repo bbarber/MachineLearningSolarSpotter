@@ -19,9 +19,9 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 
-train_data_dir = 'I:\\SolarMachineLearning\\training_images\\*\\*.jpg'
-test_data_dir = 'I:\\SolarMachineLearning\\test_images\\*\\*.jpg'
-logdir = 'I:\\SolarMachineLearning\\tensorflow\\logs\\scalars\\' + datetime.now().strftime("%Y%m%d-%H%M%S")
+train_data_dir = '..\\training_images\\*\\*.jpg'
+test_data_dir = '..\\test_images\\*\\*.jpg'
+logdir = '..\\tensorflow\\logs\\scalars\\' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
 tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
