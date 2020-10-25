@@ -12,6 +12,7 @@ from datetime import datetime
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
+from keras import backend as K
 
 # classifications notsolar = 0, solar = 1
 CLASS_NAMES = ["notsolar", "solar"]
@@ -19,11 +20,12 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 
-train_data_dir = '..\\training_images\\*\\*.jpg'
-test_data_dir = '..\\test_images\\*\\*.jpg'
-logdir = '..\\tensorflow\\logs\\scalars\\' + datetime.now().strftime("%Y%m%d-%H%M%S")
+# Use \\ here, if using windows
+train_data_dir = '../training_images/*/*.jpg'
+test_data_dir = '../test_images/*/*.jpg'
+# logdir = '../tensorflow/logs/scalars/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
-tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
+# tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
 train_ds = tf.data.Dataset.list_files(train_data_dir)
 test_ds = tf.data.Dataset.list_files(test_data_dir)
@@ -52,14 +54,6 @@ def process_path(file_path):
 train_images = train_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 test_images = test_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 
-
-# model = keras.Sequential([
-#     keras.layers.Flatten(input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
-#     keras.layers.Dense(64, activation='relu'),
-#     keras.layers.Dense(2, activation='softmax')
-# ])
-
-
 model = Sequential([
     Conv2D(16, 3, padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH ,3)),
     MaxPooling2D(),
@@ -71,7 +65,6 @@ model = Sequential([
     Dense(32, activation='relu'),
     Dense(2, activation='softmax')
 ])
-
 
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
@@ -105,8 +98,8 @@ test_labels_array = np.array(test_labels_array)
 model.fit(
   train_images_array, 
   train_labels_array, 
-  epochs=20,
-  callbacks=[tensorboard_callback],
+  epochs=1,
+  # callbacks=[tensorboard_callback],
 )
 
 test_loss, test_acc = model.evaluate(test_images_array,  test_labels_array, verbose=2)
@@ -144,4 +137,8 @@ def display_predictions():
   plt.tight_layout()
   plt.show()
 
-display_predictions()
+# display_predictions()
+
+# Export the trained model
+model.save('dist')
+
